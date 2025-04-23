@@ -1,0 +1,71 @@
+#include <iostream> 
+using namespace std; 
+ 
+#define MAX_VERTICES 100 
+#define INF 99999 // Define a large number as infinity 
+ 
+void dijkstra(int graph[MAX_VERTICES][MAX_VERTICES], int V, int source) { 
+    int distance[MAX_VERTICES];  // To store shortest distance from source 
+    bool visited[MAX_VERTICES];  // To mark visited vertices 
+ 
+    // Initialize distances and visited array 
+    for (int i = 0; i < V; i++) { 
+        distance[i] = INF; 
+        visited[i] = false; 
+    } 
+ 
+    distance[source] = 0; 
+ 
+    for (int count = 0; count < V - 1; count++) { 
+        // Find the vertex with the minimum distance value 
+        int minDistance = INF, u = -1; 
+ 
+        for (int v = 0; v < V; v++) { 
+            if (!visited[v] && distance[v] <= minDistance) { 
+                minDistance = distance[v]; 
+                u = v; 
+            } 
+        } 
+ 
+        // Mark the chosen vertex as visited 
+        visited[u] = true; 
+ 
+        // Update distance value of the adjacent vertices of the picked vertex 
+        for (int v = 0; v < V; v++) { 
+            if (!visited[v] && graph[u][v] && distance[u] != INF  
+                && distance[u] + graph[u][v] < distance[v]) { 
+                distance[v] = distance[u] + graph[u][v]; 
+            } 
+        } 
+    } 
+ 
+    // Print the distance array 
+    cout << "Vertex \t Distance from Source" << endl; 
+    for (int i = 0; i < V; i++) { 
+        cout << i << " \t\t " << distance[i] << endl; 
+    } 
+} 
+ 
+int main() { 
+    int V, E; 
+    int graph[MAX_VERTICES][MAX_VERTICES] = {0}; 
+ 
+    cout << "Enter number of vertices: "; 
+    cin >> V; 
+    cout << "Enter number of edges: "; 
+    cin >> E; 
+ 
+    cout << "Enter edges in format (source destination weight):" << endl; 
+    for (int i = 0; i < E; i++) { 
+        int u, v, w; 
+        cin >> u >> v >> w; 
+        graph[u][v] = w; 
+        graph[v][u] = w; // For undirected graph 
+    } 
+ 
+    int source; 
+    cout << "Enter the source vertex: "; 
+    cin >> source; 
+    dijkstra(graph, V, source); 
+ 
+return 0; 
