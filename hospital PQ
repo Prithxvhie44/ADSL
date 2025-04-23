@@ -1,0 +1,117 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+const int MAX = 100;
+
+struct Patient {
+    string name;
+    string ward;
+    int severity;
+    bool active; // To mark if patient is still waiting
+};
+
+Patient waitingList[MAX];
+int patientCount = 0;
+
+int generalBeds = 5, icuBeds = 3;
+int usedGeneralBeds = 0, usedIcuBeds = 0;
+
+void addPatient() {
+    if (patientCount >= MAX) {
+        cout << "Waiting list full.\n";
+        return;
+    }
+
+    string name, ward;
+    int severity;
+
+    cout << "Enter name: ";
+    cin >> name;
+    cout << "Enter ward (General/ICU): ";
+    cin >> ward;
+    cout << "Enter severity (1-10): ";
+    cin >> severity;
+
+    waitingList[patientCount++] = {name, ward, severity, true};
+    cout << "Patient added.\n";
+}
+
+void allocateBeds() {
+    while (true) {
+        int maxSeverity = -1;
+        int index = -1;
+
+        for (int i = 0; i < patientCount; i++) {
+            if (waitingList[i].active && waitingList[i].severity > maxSeverity) {
+                maxSeverity = waitingList[i].severity;
+                index = i;
+            }
+        }
+
+        if (index == -1) {
+            cout << "No patients waiting.\n";
+            break;
+        }
+
+        Patient& p = waitingList[index];
+
+        if (p.ward == "General" && usedGeneralBeds < generalBeds) {
+            usedGeneralBeds++;
+            p.active = false;
+            cout << "Allocated General bed to " << p.name << endl;
+        } else if (p.ward == "ICU" && usedIcuBeds < icuBeds) {
+            usedIcuBeds++;
+            p.active = false;
+            cout << "Allocated ICU bed to " << p.name << endl;
+        } else {
+            cout << "No available bed for " << p.name << " in " << p.ward << " ward.\n";
+            break;
+        }
+    }
+}
+
+void releaseBed() {
+    string ward;
+    cout << "Enter ward to release bed from (General/ICU): ";
+    cin >> ward;
+
+    if (ward == "General" && usedGeneralBeds > 0) {
+        usedGeneralBeds--;
+        cout << "Released a General bed.\n";
+    } else if (ward == "ICU" && usedIcuBeds > 0) {
+        usedIcuBeds--;
+        cout << "Released an ICU bed.\n";
+    } else {
+        cout << "No beds to release in " << ward << ".\n";
+    }
+}
+
+void showStatus() {
+    cout << "\n--- Ward Status ---\n";
+    cout << "General: " << usedGeneralBeds << "/" << generalBeds << " occupied\n";
+    cout << "ICU    : " << usedIcuBeds << "/" << icuBeds << " occupied\n";
+}
+
+int main() {
+    int choice;
+
+    do {
+        cout << "\n--- Hospital Menu ---\n";
+        cout << "1. Add Patient\n2. Allocate Beds\n3. Release Bed\n4. Show Status\n5. Exit\n";
+        cout << "Enter choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1: addPatient(); break;
+            case 2: allocateBeds(); break;
+            case 3: releaseBed(); break;
+            case 4: showStatus(); break;
+            case 5: cout << "Goodbye!\n"; break;
+            default: cout << "Invalid choice.\n";
+        }
+    } while (choice != 5);
+
+    return 0;
+}
