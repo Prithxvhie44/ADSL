@@ -144,6 +144,10 @@ int main() {
  
     return 0; 
 } 
- 
+
+
+
+// TC for insertion = logn
+// deletion=nlogn
  
  
