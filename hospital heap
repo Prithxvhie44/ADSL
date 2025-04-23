@@ -1,0 +1,149 @@
+#include <iostream> 
+#include <string> 
+ 
+using namespace std; 
+ 
+struct Patient { 
+    int id; 
+    string name; 
+    int age; 
+    int severity;   
+}; 
+ 
+ 
+void swap(Patient *a, Patient *b) { 
+    Patient temp = *a; 
+    *a = *b; 
+    *b = temp; 
+} 
+ 
+class HospitalBedManagement { 
+private: 
+    int index = -1; 
+    int size = 100; 
+    Patient arr[100];   
+ 
+public: 
+    void admitPatient(); 
+    void dischargePatient(); 
+    void displayPatients(); 
+}; 
+ 
+ 
+void HospitalBedManagement::admitPatient() { 
+    if (index >= size - 1) { 
+        cout<<"Hospital is full. Cannot admit more patients!"<<endl; 
+        return; 
+    } 
+ 
+    Patient p; 
+    cout<<"Enter Patient ID: "; 
+    cin>>p.id; 
+    cout<<"Enter Name: "; 
+    cin.ignore(); 
+    getline(cin, p.name); 
+    cout<<"Enter Age: "; 
+    cin>>p.age; 
+    cout<<"Enter Severity (1-100, higher = more critical): "; 
+    cin>>p.severity; 
+ 
+    index++; 
+    int current = index; 
+    arr[current] = p; 
+ 
+    
+    int parent = (current - 1) / 2; 
+    while (current > 0 && arr[current].severity > arr[parent].severity) { 
+        swap(&arr[current], &arr[parent]); 
+        current = parent; 
+        parent = (current - 1) / 2; 
+    } 
+ 
+    cout<<"Patient "<<p.name<<" admitted successfully!"<<endl; 
+} 
+ 
+ 
+void HospitalBedManagement::dischargePatient() { 
+    if (index < 0) { 
+        cout<<"No patients in the hospital!"<<endl; 
+        return; 
+    } 
+ 
+    cout<<"Discharging Patient: "<<arr[0].name<<" (Severity: "<<arr[0].severity<<")"<<endl; 
+     
+   
+    swap(&arr[0], &arr[index]); 
+    index--; 
+ 
+    // Heapify-down 
+    int i = 0; 
+    while (true) { 
+        int left = 2 * i + 1; 
+        int right = 2 * i + 2; 
+        int largest = i; 
+ 
+        if (left <= index && arr[left].severity > arr[largest].severity) { 
+            largest = left; 
+        } 
+        if (right <= index && arr[right].severity > arr[largest].severity) { 
+            largest = right; 
+        } 
+        if (largest != i) { 
+            swap(&arr[i], &arr[largest]); 
+            i = largest; 
+        } else { 
+            break; 
+        } 
+    } 
+} 
+ 
+ 
+void HospitalBedManagement::displayPatients() { 
+    if (index < 0) { 
+        cout<<"No patients currently in the hospital!"<<endl; 
+        return; 
+    } 
+ 
+    cout<<"\n--- Patient List (Sorted by Severity) ---\n"; 
+    for (int i = 0; i <= index; i++) { 
+        cout<<"ID: "<<arr[i].id<<", Name: "<<arr[i].name  
+            <<", Age: "<<arr[i].age<<", Severity: "<<arr[i].severity<<endl; 
+    } 
+} 
+ 
+int main() { 
+    HospitalBedManagement hbm; 
+    int choice; 
+ 
+    do { 
+        cout<<"\n---- Hospital Bed Management System ----\n"; 
+        cout<<"1. Admit Patient\n"; 
+        cout<<"2. Discharge Most Critical Patient\n"; 
+        cout<<"3. Display Patients\n"; 
+        cout<<"4. Exit\n"; 
+        cout<<"Enter your choice: "; 
+        cin>>choice; 
+ 
+        switch (choice) { 
+            case 1: 
+                hbm.admitPatient(); 
+                break; 
+            case 2: 
+                hbm.dischargePatient(); 
+                break; 
+            case 3: 
+                hbm.displayPatients(); 
+                break; 
+            case 4: 
+                cout<<"Exiting system..."<<endl; 
+                break; 
+            default: 
+                cout<<"Invalid choice! Please try again."<<endl; 
+        } 
+    } while (choice != 4); 
+ 
+    return 0; 
+} 
+ 
+ 
+ 
