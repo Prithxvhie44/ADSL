@@ -1,0 +1,125 @@
+#include <iostream> 
+#include <fstream> 
+using namespace std; 
+struct Account { 
+    int acc_no; 
+    char name[30]; 
+    float balance; 
+    void writeToFile(fstream &file) const { 
+        file.write((char*)&acc_no, sizeof(acc_no)); 
+        file.write(name, sizeof(name)); 
+        file.write((char*)&balance, sizeof(balance)); 
+    } 
+    void readFromFile(fstream &file) { 
+        file.read((char*)&acc_no, sizeof(acc_no)); 
+        file.read(name, sizeof(name)); 
+        file.read((char*)&balance, sizeof(balance)); 
+    } 
+    void readFromFile(ifstream &file) { 
+        file.read((char*)&acc_no, sizeof(acc_no)); 
+        file.read(name, sizeof(name)); 
+        file.read((char*)&balance, sizeof(balance)); 
+    } 
+    void updateAccount() { 
+        cout << "Enter New Name: "; 
+        cin.ignore(); 
+        cin.getline(name, 30); 
+        cout << "Enter New Balance: "; 
+        cin >> balance; 
+    } 
+    void inputAccount() { 
+        cout << "Enter Account Number: "; 
+        cin >> acc_no; 
+        cout << "Enter Name: "; 
+        cin.ignore(); 
+        cin.getline(name, 30); 
+        cout << "Enter Balance: "; 
+        cin >> balance; 
+    } 
+    void displayAccount() const { 
+        cout << "Account Number: " << acc_no << "\n"; 
+        cout << "Name: " << name << "\n"; 
+        cout << "Balance: " << balance << "\n"; 
+    } 
+}; 
+ 
+void insertAccount() { 
+    Account acc; 
+    acc.inputAccount(); 
+    fstream file("bank.dat", ios::in | ios::out | ios::binary); 
+    if (!file) { 
+        file.open("bank.dat", ios::out | ios::binary);  // create file if not exists 
+        file.close(); 
+        file.open("bank.dat", ios::in | ios::out | ios::binary); 
+    } 
+ 
+    file.seekp(acc.acc_no * sizeof(Account), ios::beg); 
+    acc.writeToFile(file); 
+    file.close(); 
+    cout << "Account inserted successfully.\n"; 
+} 
+void updateAccount() { 
+    Account acc; 
+    int acc_no; 
+    cout << "Enter Account Number to Update: "; 
+    cin >> acc_no; 
+    fstream file("bank.dat", ios::in | ios::out | ios::binary); 
+    if (!file) { 
+        cout << "File not found.\n"; 
+        return; 
+    } 
+    file.seekg(acc_no * sizeof(Account), ios::beg); 
+    acc.readFromFile(file); 
+    if (acc.acc_no != acc_no) { 
+        cout << "Account not found.\n"; 
+        file.close(); 
+        return; 
+    } 
+    cout << "Current Details:\n"; 
+    acc.displayAccount(); 
+    acc.updateAccount(); 
+    file.seekp(acc_no * sizeof(Account), ios::beg); 
+    acc.writeToFile(file); 
+    file.close(); 
+    cout << "Account updated successfully.\n"; 
+} 
+void searchAccount() { 
+    Account acc; 
+    int acc_no; 
+    cout << "Enter Account Number to Search: "; 
+    cin >> acc_no; 
+    ifstream file("bank.dat", ios::binary); 
+    if (!file) { 
+        cout << "File not found.\n"; 
+        return; 
+    } 
+    file.seekg(acc_no * sizeof(Account), ios::beg); 
+    acc.readFromFile(file); 
+    if (acc.acc_no != acc_no) { 
+        cout << "Account not found.\n"; 
+    } else { 
+        cout << "Account Found:\n"; 
+        acc.displayAccount(); 
+    } 
+    file.close(); 
+} 
+int main() { 
+    int choice; 
+    do { 
+        cout << "\nBanking System Menu:\n"; 
+cout << "1. Insert Account\n"; 
+cout << "2. Update Account\n"; 
+cout << "3. Search Account\n"; 
+cout << "4. Exit\n"; 
+cout << "Enter your choice: "; 
+cin >> choice; 
+switch(choice) { 
+case 1: insertAccount(); break; 
+case 2: updateAccount(); break; 
+case 3: searchAccount(); break; 
+case 4: cout << "Exiting...\n"; break; 
+default: cout << "Invalid choice.\n"; 
+} 
+} while(choice != 4); 
+return 0; 
+}
